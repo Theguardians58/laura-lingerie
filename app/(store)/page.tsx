@@ -1,10 +1,12 @@
-// --- FIX: Use relative paths instead of aliases ---
 import { Button } from "../../components/ui/button";
 import ProductGrid from "../../components/ProductGrid";
-import { createClient } from "../../lib/supabase/server";
+// UPDATE: Import and use the new function name
+import { createServerClient } from "../../lib/supabase/server";
 
 export default async function HomePage() {
-  const supabase = createClient();
+  // UPDATE: Use the new function name
+  const supabase = createServerClient();
+  
   // Example of fetching data in a Server Component
   // const { data: products } = await supabase.from('products').select('*').limit(4);
 
@@ -12,7 +14,7 @@ export default async function HomePage() {
     <div className="flex flex-col items-center">
       {/* Hero Section */}
       <section className="w-full h-[60vh] md:h-[80vh] bg-gray-200 flex items-center justify-center relative">
-        {/* Replace with a high-quality <Image /> component */}
+        {/* Placeholder for a background image */}
         <div className="absolute inset-0 bg-black opacity-30"></div>
         <div className="z-10 text-center text-white p-4">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
@@ -25,12 +27,12 @@ export default async function HomePage() {
             Shop New Arrivals
           </Button>
         </div>
+        
       </section>
 
       {/* New Arrivals */}
       <section className="w-full max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-center mb-8">New Arrivals</h2>
-        {/* Pass the fetched products to the grid */}
         <ProductGrid products={[]} />
       </section>
 
@@ -45,4 +47,4 @@ export default async function HomePage() {
   );
 }
 
-          
+        
