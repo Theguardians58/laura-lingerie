@@ -1,8 +1,57 @@
+/* ========= TAILWIND DIRECTIVES ========= */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* You can add custom base styles here if needed */
-body {
-  @apply bg-background text-primary antialiased;
+/* ========= CUSTOM STYLES & THEME ========= */
+@layer base {
+  /* Define CSS Variables for our color palette */
+  :root {
+    --background: 0 0% 100%; /* White */
+    --foreground: 240 10% 3.9%; /* Near Black */
+    
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    --primary: 346.8 77.2% 49.8%; /* Dusty Rose Pink */
+    --primary-foreground: 355.7 100% 97.3%;
+    
+    --secondary: 240 4.8% 95.9%; /* Light Gray */
+    --secondary-foreground: 240 5.9% 10%;
+    
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 346.8 77.2% 49.8%;
+    
+    --radius: 0.5rem;
+  }
+
+  /* Apply a smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Set the default background and text colors for the site */
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 }
+
+/* Add a custom utility layer for things like text gradients */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+    
