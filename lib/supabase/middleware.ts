@@ -1,8 +1,8 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export const createClient = (request: NextRequest) => {
-  // Create an unmodified response
+// RENAME: createClient -> createMiddlewareClient
+export const createMiddlewareClient = (request: NextRequest) => {
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -18,47 +18,24 @@ export const createClient = (request: NextRequest) => {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          // If the cookie is set, update the headers on the request
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          // And update the headers on the response
+          request.cookies.set({ name, value, ...options })
           response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+            request: { headers: request.headers },
           })
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
+          response.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: CookieOptions) {
-          // If the cookie is removed, update the headers on the request
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-          // And update the headers on the response
+          request.cookies.set({ name, value: '', ...options })
           response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+            request: { headers: request.headers },
           })
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
+          response.cookies.set({ name, value: '', ...options })
         },
       },
     }
   )
 
   return { supabase, response }
-            }
-                              
+}
+
+    
