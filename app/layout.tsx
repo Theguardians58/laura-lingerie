@@ -1,7 +1,8 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "../components/Header";
-import Footer from "../components/Footer"; // <-- 1. IMPORT THE FOOTER
+import Footer from "../components/Footer";
+import { CartProvider } from "../context/CartContext"; // 1. Import CartProvider
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,12 +19,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-background text-foreground flex flex-col min-h-screen`}>
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer /> {/* <-- 2. ADD THE FOOTER COMPONENT HERE */}
+        <CartProvider> {/* 2. Wrap the components */}
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </CartProvider> {/* 3. Close the wrapper */}
       </body>
     </html>
   );
 }
 
-          
+    
