@@ -1,11 +1,13 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+// THE FIX: We import the function from the library but give it a unique alias
+import { createServerClient as createSupabaseClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-// RENAME: createClient -> createServerClient
+// This is OUR function that we use in our pages. Its name is now unique.
 export const createServerClient = () => {
   const cookieStore = cookies()
 
-  return createServerClient(
+  // We call the aliased library function internally. No more name conflict.
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -34,3 +36,4 @@ export const createServerClient = () => {
   )
 }
 
+            
