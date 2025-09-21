@@ -1,100 +1,91 @@
-"use client";
+"use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Define the structure of a single item in the cart
-export interface CartItem {
-  id: number;
+export type CartItem = {
+  id: string; // CHANGE HERE: The unique ID for the cart item itself (was number)
+  productId: number; // The ID from the database products table
   name: string;
   price: number;
   quantity: number;
-  image?: string; // Optional image URL
-}
+  image: string;
+};
 
-// Define the shape of the context's value
-interface CartContextType {
+type CartContextType = {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
-  removeItem: (itemId: number) => void;
-  updateQuantity: (itemId: number, newQuantity: number) => void;
+  addItem: (item: Omit<CartItem, 'quantity' | 'id'>) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-}
+};
 
-// Create the context with a default undefined value
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Custom hook for easy access to the cart context
 export function useCart() {
   const context = useContext(CartContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;
 }
 
-// The CartProvider component that will wrap our application
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  // On initial load, try to get the cart from local storage
+  // Load cart from localStorage on initial render
   useEffect(() => {
-    const storedCart = localStorage.getItem('laura_cart');
-    if (storedCart) {
-      setItems(JSON.parse(storedCart));
+    const savedCart = localStorage.getItem('laura_cart');
+    if (savedCart) {
+      setItems(JSON.parse(savedCart));
     }
   }, []);
 
-  // Whenever the cart items change, save the new state to local storage
+  // Save cart to localStorage whenever items change
   useEffect(() => {
-    // We check for items > -1 to handle the initial empty state correctly
-    if (items.length >= 0) {
-      localStorage.setItem('laura_cart', JSON.stringify(items));
-    }
+    localStorage.setItem('laura_cart', JSON.stringify(items));
   }, [items]);
 
-  const addItem = (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
-    setItems(prevItems => {
-      const existingItem = prevItems.find(i => i.id === item.id);
+  const addItem = (itemToAdd: Omit<CartItem, 'quantity' | 'id'>) => {
+    setItems((prevItems) => {
+      // Check if the product is already in the cart
+      const existingItem = prevItems.find(item => item.productId === itemToAdd.productId);
       if (existingItem) {
-        // If item exists, update its quantity
-        return prevItems.map(i =>
-          i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
+        // If it exists, just increase the quantity
+        return prevItems.map(item =>
+          item.productId === itemToAdd.productId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
+      } else {
+        // If it's a new product, add it with quantity 1 and a unique ID
+        return [...prevItems, { ...itemToAdd, id: crypto.randomUUID(), quantity: 1 }];
       }
-      // If item is new, add it to the cart
-      return [...prevItems, { ...item, quantity }];
     });
   };
-
-  const removeItem = (itemId: number) => {
-    setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  
+  const removeItem = (id: string) => {
+    setItems((prevItems) => prevItems.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (itemId: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      // If quantity is 0 or less, remove the item
-      removeItem(itemId);
+  const updateQuantity = (id: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeItem(id);
     } else {
-      setItems(prevItems =>
-        prevItems.map(item =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        )
+      setItems((prevItems) =>
+        prevItems.map(item => (item.id === id ? { ...item, quantity } : item))
       );
     }
   };
-  
+
   const clearCart = () => {
     setItems([]);
   };
 
-  const value = {
-    items,
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
-  };
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart }}>
+      {children}
+    </CartContext.Provider>
+  );
 }
 
+        
