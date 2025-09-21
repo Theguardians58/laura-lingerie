@@ -4,8 +4,8 @@ import { cookies } from 'next/headers'
 import HeaderClient from './HeaderClient'
 
 export default async function Header() {
-  const cookieStore = cookies()
-  const supabase = createServerClient(cookieStore)
+  // We no longer need to pass cookieStore to the function
+  const supabase = createServerClient()
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
@@ -24,4 +24,4 @@ export default async function Header() {
   )
 }
 
-        
+          
