@@ -2,7 +2,8 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { cn } from "@/lib/utils" // Note: We haven't created a utils.ts, but this is standard for shadcn/ui
+// Correct the import path to be relative
+import { cn } from "../../lib/utils"
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -53,13 +54,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-// Dummy cn function since we don't have the utils file yet.
-// In a real project, this would come from a lib/utils.ts file.
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
-}
-
-
 export { Button, buttonVariants }
 
-        
+  
