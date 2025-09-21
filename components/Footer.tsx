@@ -1,7 +1,8 @@
-import { Instagram, Facebook, Pinterest } from 'lucide-react'
+import { Instagram, Facebook, Twitter } from 'lucide-react' // CHANGED: Pinterest -> Twitter
 
 export default function Footer() {
-  // Dynamically set the year for the copyright notice
+  // This will dynamically set the copyright year.
+  // As of this writing in September 2025, it will display "2025".
   const currentYear = new Date().getFullYear();
 
   return (
@@ -59,7 +60,7 @@ export default function Footer() {
             <div className="flex space-x-4">
               <a href="#" aria-label="Instagram" className="text-muted-foreground hover:text-primary transition-colors"><Instagram /></a>
               <a href="#" aria-label="Facebook" className="text-muted-foreground hover:text-primary transition-colors"><Facebook /></a>
-              <a href="#" aria-label="Pinterest" className="text-muted-foreground hover:text-primary transition-colors"><Pinterest /></a>
+              <a href="#" aria-label="Twitter" className="text-muted-foreground hover:text-primary transition-colors"><Twitter /></a> {/* CHANGED: Pinterest -> Twitter */}
             </div>
           </div>
         </div>
@@ -79,4 +80,4 @@ export default function Footer() {
   )
 }
 
-            
+                    
