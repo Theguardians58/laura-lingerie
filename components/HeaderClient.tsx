@@ -1,110 +1,82 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Search, ShoppingBag, User, X } from "lucide-react";
-import { useCart } from "@/context/CartContext";
-import CartSheet from "./CartSheet";
+import Link from 'next/link'
+import { Search, ShoppingBag, User } from 'lucide-react'
+import { useCart } from '../context/CartContext' // Using relative path
+import CartSheet from './CartSheet'
+import { useState } from 'react'
 
-type HeaderClientProps = {
+// Define the props that this component will accept
+interface HeaderClientProps {
   isLoggedIn: boolean;
-  userName?: string | null;
-};
+}
 
-export default function HeaderClient({ isLoggedIn, userName }: HeaderClientProps) {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
+export default function HeaderClient({ isLoggedIn }: HeaderClientProps) {
   const { items } = useCart();
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setIsSearchOpen(false);
-    }
-  };
+  // Search state is now managed here
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Left side: Logo and Navigation */}
-            <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-2">
-                <span className="text-2xl font-bold tracking-tighter text-primary">L'AURA</span>
-              </Link>
-              <nav className="hidden md:flex items-center gap-6">
-                {/* This is the new link we added */}
-                <Link href="/shop" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
-                  Shop
-                </Link>
-                {/* Add other links like 'Collections', 'About' here later */}
-              </nav>
-            </div>
+      <div className="flex flex-1 items-center justify-end space-x-4">
+        {/* Main Navigation */}
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-muted-foreground">
+          <Link href="/shop" className="transition-colors hover:text-primary">
+            Shop
+          </Link>
+          <Link href="#" className="transition-colors hover:text-primary">
+            Collections
+          </Link>
+          <Link href="#" className="transition-colors hover:text-primary">
+            About
+          </Link>
+        </nav>
 
-            {/* Right side: Icons and User Info */}
-            <div className="flex items-center gap-4">
-              <button onClick={() => setIsSearchOpen(true)} className="p-2 text-foreground/80 hover:text-foreground transition-colors">
-                <Search className="h-5 w-5" />
-              </button>
-              
-              <CartSheet>
-                <button className="relative p-2 text-foreground/80 hover:text-foreground transition-colors">
-                  <ShoppingBag className="h-5 w-5" />
-                  {cartItemCount > 0 && (
-                    <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </button>
-              </CartSheet>
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* Search Button */}
+          <button onClick={() => setIsSearchOpen(true)} className="text-muted-foreground transition-colors hover:text-primary">
+            <Search className="h-5 w-5" />
+          </button>
 
-              {isLoggedIn ? (
-                <div className="flex items-center gap-2">
-                  <span className="hidden sm:inline text-sm text-foreground/80">Hi, {userName}</span>
-                  <form action="/auth/sign-out" method="post">
-                    <button type="submit" className="p-2 text-foreground/80 hover:text-foreground transition-colors">
-                      Sign Out
-                    </button>
-                  </form>
-                </div>
-              ) : (
-                <Link href="/login" className="p-2 text-foreground/80 hover:text-foreground transition-colors">
-                  <User className="h-5 w-5" />
-                </Link>
+          {/* Account Link - This is now dynamic */}
+          <Link href={isLoggedIn ? "/account" : "/login"} className="text-muted-foreground transition-colors hover:text-primary">
+            <User className="h-5 w-5" />
+          </Link>
+          
+          {/* Cart Trigger */}
+          <CartSheet>
+            <button className="relative text-muted-foreground transition-colors hover:text-primary">
+              <ShoppingBag className="h-5 w-5" />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  {totalItems}
+                </span>
               )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Full-screen Search Overlay */}
-      {isSearchOpen && (
-        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex flex-col items-center justify-center">
-            <button onClick={() => setIsSearchOpen(false)} className="absolute top-4 right-4 text-foreground/80 hover:text-foreground">
-              <X className="h-8 w-8" />
             </button>
-            <form onSubmit={handleSearchSubmit} className="w-full max-w-xl">
-              <input
-                type="text"
-                autoFocus
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for elegance..."
-                className="w-full bg-transparent border-b-2 border-primary text-4xl text-center text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/80 transition-colors"
-              />
-            </form>
-          </div>
+          </CartSheet>
         </div>
+      </div>
+      
+      {/* Search Overlay */}
+      {isSearchOpen && (
+         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+           <div className="fixed left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 p-4">
+              <button onClick={() => setIsSearchOpen(false)} className="absolute right-6 top-6 text-muted-foreground">&times;</button>
+              <h2 className="text-center text-xl font-semibold mb-4">Search for products</h2>
+              <form action="/search" method="GET">
+                  <input
+                      name="query"
+                      className="w-full bg-input px-4 py-2 rounded-md"
+                      placeholder="e.g. Silk Bralette"
+                  />
+              </form>
+           </div>
+         </div>
       )}
     </>
-  );
+  )
 }
 
-    
+            
