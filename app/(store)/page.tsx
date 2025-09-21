@@ -1,50 +1,47 @@
-import { Button } from "../../components/ui/button";
-import ProductGrid from "../../components/ProductGrid";
-// UPDATE: Import and use the new function name
-import { createServerClient } from "../../lib/supabase/server";
+import React from 'react';
+import { createServerClient } from '../../lib/supabase/server';
+import ProductGrid from '../../components/ProductGrid';
+import { Button } from '../../components/ui/button';
 
 export default async function HomePage() {
-  // UPDATE: Use the new function name
   const supabase = createServerClient();
-  
-  // Example of fetching data in a Server Component
+  // We are keeping the product fetching logic commented out as we have no data yet.
   // const { data: products } = await supabase.from('products').select('*').limit(4);
 
   return (
-    <div className="flex flex-col items-center">
+    <main>
       {/* Hero Section */}
-      <section className="w-full h-[60vh] md:h-[80vh] bg-gray-200 flex items-center justify-center relative">
-        {/* Placeholder for a background image */}
-        <div className="absolute inset-0 bg-black opacity-30"></div>
-        <div className="z-10 text-center text-white p-4">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+      <section className="relative h-[60vh] min-h-[400px] w-full bg-cover bg-center flex items-center justify-center text-white" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1585254210029-9e8a5b285f20?q=80&w=2070&auto=format&fit=crop')" }}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 text-center px-4">
+          <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight text-balance">
             Discover Your Inner Confidence
           </h1>
-          <p className="mt-4 text-lg md:text-xl max-w-2xl">
-            Exquisite lingerie designed to make you feel beautiful, powerful, and unapologetically you.
+          <p className="mt-4 max-w-xl mx-auto text-lg text-white/90 text-balance">
+            Exquisite lingerie designed for the modern woman. Comfort, elegance, and sensuality in every piece.
           </p>
-          <Button size="lg" className="mt-8">
-            Shop New Arrivals
-          </Button>
+          <div className="mt-8">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              Shop New Arrivals
+            </Button>
+          </div>
         </div>
-        
       </section>
+      
+      
 
-      {/* New Arrivals */}
-      <section className="w-full max-w-7xl mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-8">New Arrivals</h2>
+      {/* New Arrivals Section */}
+      <section className="w-full max-w-7xl mx-auto px-4 py-16 sm:py-24">
+        <h2 className="text-3xl font-bold text-center mb-12 tracking-tight">
+          New Arrivals
+        </h2>
+        {/* We pass an empty array because we have no products yet. The component will handle this gracefully. */}
         <ProductGrid products={[]} />
       </section>
 
-       {/* Best Sellers */}
-       <section className="w-full bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center mb-8">Best Sellers</h2>
-          <ProductGrid products={[]} />
-        </div>
-       </section>
-    </div>
+      {/* You can add more sections like "Best Sellers" or "Featured Collections" here */}
+    </main>
   );
 }
 
-        
+            
