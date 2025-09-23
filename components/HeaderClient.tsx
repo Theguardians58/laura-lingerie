@@ -1,103 +1,62 @@
-"use client";
-
 import Link from 'next/link';
-import { Search, ShoppingCart, User, X } from 'lucide-react';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useCart } from '@/context/CartContext';
-// --- CHANGE: Import CartSheet and Dropdown as named exports using curly braces ---
-import { CartSheet } from './CartSheet';
-import { Dropdown } from './ui/dropdown';
+// --- FIX: Import AddToCartButton as a named export using curly braces ---
+import { AddToCartButton } from './AddToCartButton';
 
-interface HeaderClientProps {
-  isLoggedIn: boolean;
+// Define the shape of a product object for TypeScript
+interface Product {
+  id: number;
+  name: string;
+  price: number | null;
+  image_url: string | null;
+  slug: string | null; 
 }
 
-export function HeaderClient({ isLoggedIn }: HeaderClientProps) {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter();
-  const { cart } = useCart();
-  const [isCartOpen, setIsCartOpen] = useState(false);
+interface ProductGridProps {
+  products: Product[];
+}
 
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
-
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-      setIsSearchOpen(false);
-    }
-  };
-  
-  const categories = [
-    { name: 'All', href: '/shop' },
-    { name: 'Bras', href: '/shop/bras' },
-    { name: 'Panties', href: '/shop/panties' },
-    { name: 'Sleepwear', href: '/shop/sleepwear' },
-  ];
+export function ProductGrid({ products }: ProductGridProps) {
+  if (!products || products.length === 0) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="animate-pulse">
+            <div className="aspect-[3/4] bg-muted rounded-lg"></div>
+            <div className="h-4 bg-muted rounded w-3/4 mt-2"></div>
+            <div className="h-4 bg-muted rounded w-1/2 mt-1"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="flex-1 flex items-center justify-center">
-        <Link href="/" className="text-2xl font-bold tracking-widest text-primary hover:opacity-80 transition-opacity">
-          L'AURA
-        </Link>
-      </div>
-
-      <nav className="hidden md:flex items-center space-x-6">
-        <Dropdown title="Shop" items={categories} />
-      </nav>
-
-      <div className="flex-1 flex items-center justify-end space-x-4">
-        <button onClick={() => setIsSearchOpen(true)} className="hover:text-primary transition-colors">
-          <Search size={20} />
-          <span className="sr-only">Search</span>
-        </button>
-        
-        <Link href={isLoggedIn ? "/account" : "/login"} className="hover:text-primary transition-colors">
-          <User size={20} />
-          <span className="sr-only">{isLoggedIn ? "Account" : "Login"}</span>
-        </Link>
-
-        <button onClick={() => setIsCartOpen(true)} className="relative hover:text-primary transition-colors">
-          <ShoppingCart size={20} />
-          {cartItemCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
-              {cartItemCount}
-            </span>
-          )}
-          <span className="sr-only">Open cart</span>
-        </button>
-      </div>
-
-      <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
-
-      {isSearchOpen && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="relative w-full max-w-md p-4">
-            <button
-              onClick={() => setIsSearchOpen(false)}
-              className="absolute top-4 right-4 text-foreground hover:text-primary transition-colors"
-            >
-              <X size={24} />
-              <span className="sr-only">Close search</span>
-            </button>
-            <form onSubmit={handleSearchSubmit}>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for..."
-                className="w-full bg-transparent border-b-2 border-primary text-2xl text-center text-foreground placeholder-muted-foreground focus:outline-none focus:ring-0"
-                autoFocus
-              />
-            </form>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8">
+      {products.map((product) => (
+        <Link key={product.id} href={`/product/${product.slug || product.id}`} className="group relative">
+          <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted">
+            <img
+              src={product.image_url || 'https://placehold.co/400x533/171717/f5f5f5?text=L%27AURA'}
+              alt={product.name}
+              className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            />
+             <div className="absolute inset-x-0 bottom-4 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+               <AddToCartButton product={product} />
+            </div>
           </div>
-        </div>
-      )}
-    </>
+          <div className="mt-4 flex justify-between">
+            <div>
+              <h3 className="text-sm text-foreground">
+                <span aria-hidden="true" className="absolute inset-0" />
+                {product.name}
+              </h3>
+            </div>
+            <p className="text-sm font-medium text-foreground">${product.price?.toFixed(2)}</p>
+          </div>
+        </Link>
+      ))}
+    </div>
   );
 }
 
-                              
+  
