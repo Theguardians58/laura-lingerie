@@ -1,57 +1,38 @@
+// --- FIX: Import ProductGrid as a named export using curly braces ---
+import { ProductGrid } from '@/components/ProductGrid';
 import { createServerClient } from '@/lib/supabase/server';
-import ProductGrid from '@/components/ProductGrid';
 import { notFound } from 'next/navigation';
 
-// This tells Next.js to show a 404 page if a category doesn't exist.
-export const dynamicParams = false;
-
-// This function tells Next.js which category pages to pre-build at deploy time.
-export async function generateStaticParams() {
-  // We can fetch our categories from the DB or define them statically.
-  // For a small number of categories, static is fine.
-  const categories = ['all', 'bras', 'panties', 'sleepwear'];
-  return categories.map((category) => ({
-    category,
-  }));
-}
-
-// Capitalize first letter for display
-function capitalize(str: string) {
-    if (!str) return str;
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 export default async function CategoryPage({ params }: { params: { category: string } }) {
-  const { category } = params;
-  
-  // Decode URI component for safety (e.g., if a category has a space)
-  const decodedCategory = decodeURIComponent(category);
-
   const supabase = createServerClient();
-  let query = supabase.from('products').select('*');
+  
+  // First, find the category ID from the slug (URL-friendly name)
+  const { data: categoryData } = await supabase
+    .from('categories')
+    .select('id, name')
+    .eq('slug', params.category)
+    .single();
 
-  // If the category is not 'all', filter by it.
-  if (decodedCategory !== 'all') {
-    // Using .ilike for case-insensitive matching
-    query = query.ilike('category', decodedCategory);
+  // If no category matches the slug in the URL, show a 404 page
+  if (!categoryData) {
+    notFound();
   }
-
-  const { data: products, error } = await query;
-
-  if (error) {
-    console.error('Error fetching products by category:', error);
-    // You might want a more user-friendly error page here
-    return <div>Error loading products. Please try again later.</div>
-  }
-
-  const pageTitle = decodedCategory === 'all' ? 'All Products' : `Shop: ${capitalize(decodedCategory)}`;
-
+  
+  // Then, fetch all products that belong to that category ID
+  const { data: products } = await supabase
+    .from('products')
+    .select('*')
+    .eq('category_id', categoryData.id)
+    .order('created_at', { ascending: false });
+    
   return (
-    <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-8">
-        {pageTitle}
+    <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground mb-8">
+        {categoryData.name}
       </h1>
       <ProductGrid products={products || []} />
     </div>
   );
 }
+
+  
