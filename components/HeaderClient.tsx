@@ -8,7 +8,6 @@ import { useCart } from '@/context/CartContext';
 import { CartSheet } from './CartSheet';
 import { Dropdown } from './ui/dropdown';
 
-// This props interface now receives the login status from the parent server component.
 interface HeaderClientProps {
   isLoggedIn: boolean;
 }
@@ -40,16 +39,13 @@ export function HeaderClient({ isLoggedIn }: HeaderClientProps) {
   return (
     <>
       <div className="flex-1 flex items-center justify-center">
-        {/* --- CHANGE START: Made the website name a clickable link to the homepage --- */}
         <Link href="/" className="text-2xl font-bold tracking-widest text-primary hover:opacity-80 transition-opacity">
           L'AURA
         </Link>
-        {/* --- CHANGE END --- */}
       </div>
 
       <nav className="hidden md:flex items-center space-x-6">
         <Dropdown title="Shop" items={categories} />
-        {/* Future links like 'About', 'Contact' can be added here */}
       </nav>
 
       <div className="flex-1 flex items-center justify-end space-x-4">
@@ -58,11 +54,12 @@ export function HeaderClient({ isLoggedIn }: HeaderClientProps) {
           <span className="sr-only">Search</span>
         </button>
         
-        {/* Determine link for user icon based on login status */}
-        <Link href={isLoggedIn ? "/profile" : "/login"} className="hover:text-primary transition-colors">
+        {/* --- CHANGE START: The link now points to /account instead of /profile --- */}
+        <Link href={isLoggedIn ? "/account" : "/login"} className="hover:text-primary transition-colors">
           <User size={20} />
           <span className="sr-only">{isLoggedIn ? "Account" : "Login"}</span>
         </Link>
+        {/* --- CHANGE END --- */}
 
         <button onClick={() => setIsCartOpen(true)} className="relative hover:text-primary transition-colors">
           <ShoppingCart size={20} />
@@ -75,10 +72,8 @@ export function HeaderClient({ isLoggedIn }: HeaderClientProps) {
         </button>
       </div>
 
-      {/* Cart Sheet */}
       <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
 
-      {/* Search Overlay */}
       {isSearchOpen && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="relative w-full max-w-md p-4">
