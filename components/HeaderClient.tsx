@@ -1,89 +1,109 @@
-"use client"
+"use client";
 
-import Link from 'next/link'
-import { Search, ShoppingBag, User } from 'lucide-react'
-import { useCart } from '../context/CartContext'
-import CartSheet from './CartSheet'
-import { useState } from 'react'
-import Dropdown from './ui/dropdown' // Import the new Dropdown component
+import Link from 'next/link';
+import { Search, ShoppingCart, User, X } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
+import { CartSheet } from './CartSheet';
+import { Dropdown } from './ui/dropdown';
 
+// This props interface now receives the login status from the parent server component.
 interface HeaderClientProps {
   isLoggedIn: boolean;
 }
 
-export default function HeaderClient({ isLoggedIn }: HeaderClientProps) {
-  const { items } = useCart();
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+export function HeaderClient({ isLoggedIn }: HeaderClientProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+  const { cart } = useCart();
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Define our categories that will appear in the dropdown
-  const categories = [
-    { href: "/shop/all", label: "All Products" },
-    { href: "/shop/bras", label: "Bras" },
-    { href: "/shop/panties", label: "Panties" },
-    { href: "/shop/sleepwear", label: "Sleepwear" },
-  ];
+  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const query = formData.get('query') as string;
-    if (query) {
-      window.location.href = `/search?query=${encodeURIComponent(query)}`;
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
     }
   };
+  
+  const categories = [
+    { name: 'All', href: '/shop' },
+    { name: 'Bras', href: '/shop/bras' },
+    { name: 'Panties', href: '/shop/panties' },
+    { name: 'Sleepwear', href: '/shop/sleepwear' },
+  ];
 
   return (
     <>
-      <div className="flex flex-1 items-center justify-end space-x-4">
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-muted-foreground">
-          {/* Replace the simple Shop link with our new Dropdown */}
-          <Dropdown triggerText="Shop" items={categories} />
-          <Link href="/collections" className="transition-colors hover:text-primary">
-            Collections
-          </Link>
-          <Link href="/about" className="transition-colors hover:text-primary">
-            About
-          </Link>
-        </nav>
-
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <button onClick={() => setIsSearchOpen(true)} className="text-muted-foreground transition-colors hover:text-primary">
-            <Search className="h-5 w-5" />
-          </button>
-          <Link href={isLoggedIn ? "/account" : "/login"} className="text-muted-foreground transition-colors hover:text-primary">
-            <User className="h-5 w-5" />
-          </Link>
-          <CartSheet>
-            <button className="relative text-muted-foreground transition-colors hover:text-primary">
-              <ShoppingBag className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-          </CartSheet>
-        </div>
+      <div className="flex-1 flex items-center justify-center">
+        {/* --- CHANGE START: Made the website name a clickable link to the homepage --- */}
+        <Link href="/" className="text-2xl font-bold tracking-widest text-primary hover:opacity-80 transition-opacity">
+          L'AURA
+        </Link>
+        {/* --- CHANGE END --- */}
       </div>
-      
+
+      <nav className="hidden md:flex items-center space-x-6">
+        <Dropdown title="Shop" items={categories} />
+        {/* Future links like 'About', 'Contact' can be added here */}
+      </nav>
+
+      <div className="flex-1 flex items-center justify-end space-x-4">
+        <button onClick={() => setIsSearchOpen(true)} className="hover:text-primary transition-colors">
+          <Search size={20} />
+          <span className="sr-only">Search</span>
+        </button>
+        
+        {/* Determine link for user icon based on login status */}
+        <Link href={isLoggedIn ? "/profile" : "/login"} className="hover:text-primary transition-colors">
+          <User size={20} />
+          <span className="sr-only">{isLoggedIn ? "Account" : "Login"}</span>
+        </Link>
+
+        <button onClick={() => setIsCartOpen(true)} className="relative hover:text-primary transition-colors">
+          <ShoppingCart size={20} />
+          {cartItemCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
+              {cartItemCount}
+            </span>
+          )}
+          <span className="sr-only">Open cart</span>
+        </button>
+      </div>
+
+      {/* Cart Sheet */}
+      <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
+
+      {/* Search Overlay */}
       {isSearchOpen && (
-         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" onClick={() => setIsSearchOpen(false)}>
-           <div className="fixed left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 p-4" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => setIsSearchOpen(false)} className="absolute right-6 top-6 text-muted-foreground">&times;</button>
-              <h2 className="text-center text-xl font-semibold mb-4">Search for products</h2>
-              <form onSubmit={handleSearchSubmit}>
-                  <input
-                      name="query"
-                      className="w-full bg-input px-4 py-2 rounded-md"
-                      placeholder="e.g. Silk Bralette"
-                  />
-              </form>
-           </div>
-         </div>
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="relative w-full max-w-md p-4">
+            <button
+              onClick={() => setIsSearchOpen(false)}
+              className="absolute top-4 right-4 text-foreground hover:text-primary transition-colors"
+            >
+              <X size={24} />
+              <span className="sr-only">Close search</span>
+            </button>
+            <form onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for..."
+                className="w-full bg-transparent border-b-2 border-primary text-2xl text-center text-foreground placeholder-muted-foreground focus:outline-none focus:ring-0"
+                autoFocus
+              />
+            </form>
+          </div>
+        </div>
       )}
     </>
-  )
+  );
 }
 
-    
+     
