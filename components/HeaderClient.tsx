@@ -5,6 +5,7 @@ import { Search, ShoppingCart, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+// --- CHANGE: Import CartSheet and Dropdown as named exports using curly braces ---
 import { CartSheet } from './CartSheet';
 import { Dropdown } from './ui/dropdown';
 
@@ -54,12 +55,10 @@ export function HeaderClient({ isLoggedIn }: HeaderClientProps) {
           <span className="sr-only">Search</span>
         </button>
         
-        {/* --- CHANGE START: The link now points to /account instead of /profile --- */}
         <Link href={isLoggedIn ? "/account" : "/login"} className="hover:text-primary transition-colors">
           <User size={20} />
           <span className="sr-only">{isLoggedIn ? "Account" : "Login"}</span>
         </Link>
-        {/* --- CHANGE END --- */}
 
         <button onClick={() => setIsCartOpen(true)} className="relative hover:text-primary transition-colors">
           <ShoppingCart size={20} />
@@ -101,4 +100,4 @@ export function HeaderClient({ isLoggedIn }: HeaderClientProps) {
   );
 }
 
-     
+                              
